@@ -124,9 +124,12 @@ fabric.properties
 .history
 .ionide
 
+# Ignore compiled files
+bin/
+
 # End of https://www.toptal.com/developers/gitignore/api/intellij,visualstudiocode
 
-### FXGL Patch ###
-.bin/
-.logs/
-.system/
+
+### FXGL ###
+logs/
+system/
