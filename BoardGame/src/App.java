@@ -9,8 +9,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
-import javafx.scene.text.Font;
 import javafx.util.Duration;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
@@ -22,7 +22,10 @@ public class App extends GameApplication {
     private final int UI_WIDTH = 200;
     private final int NUM_TILES_WIDTH = 5;
     private final int NUM_TILES_HEIGHT = 5;
-    private final int PADDING = 10;
+    private int[][] tiles = new int[NUM_TILES_HEIGHT * NUM_TILES_WIDTH][2];
+    private Circle player = new Circle(25);
+    private int position = 0;
+
 
     @Override
     protected void initSettings(GameSettings settings) {
@@ -61,7 +64,9 @@ public class App extends GameApplication {
         }
 
         Button forwardOne = new Button("Move forward one");
+        forwardOne.setOnAction(e -> move(1));
         Button forwardThree = new Button("Move forward three");
+        forwardThree.setOnAction(e -> move(3));
         
         VBox buttons = new VBox(forwardOne, forwardThree);
         buttons.setSpacing(20);
@@ -71,15 +76,46 @@ public class App extends GameApplication {
         getGameScene().addUINode(layout);
         getGameScene().setBackgroundColor(Color.GREY);
 
+        getGameScene().addUINode(player);
+
         timeline.play();
     }
 
     protected void initGame() {
+        int count = 0;
+        for (int i = 1; i <= NUM_TILES_HEIGHT; i++) {
+            int pos_Y = ((BASE_HEIGHT / NUM_TILES_HEIGHT) * i) - ((BASE_HEIGHT / NUM_TILES_HEIGHT) / 2);
+            for (int j = 1; j <= NUM_TILES_WIDTH; j++) {
+                int pos_X = ((BASE_WIDTH / NUM_TILES_WIDTH) * j) - ((BASE_WIDTH / NUM_TILES_WIDTH) / 2);
+                tiles[count][0] = pos_Y;
+                tiles[count][1] = pos_X;
+                count++;
+            }
+        }
 
+        player.setTranslateY(tiles[0][0]);
+        player.setTranslateX(tiles[0][1]);
     }
 
-    protected void initInput() {
+    private void move(int n) {
+        if (n < 0) {
+            return;
+        }
 
+        if (position == tiles.length - 1) {
+            return;
+        }
+
+        int newpos = position + n;
+
+        if (position + n > tiles.length) {
+            newpos = tiles.length - 1;
+        }
+
+        player.setTranslateY(tiles[newpos][0]);
+        player.setTranslateX(tiles[newpos][1]);
+
+        position = newpos;
     }
 
     public static void main(String[] args) {
