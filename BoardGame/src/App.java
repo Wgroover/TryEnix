@@ -5,6 +5,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.scene.control.Button;
+import javafx.scene.control.Spinner;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -14,6 +15,8 @@ import javafx.scene.shape.Line;
 import javafx.util.Duration;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
+
+import java.util.ArrayList;
 
 public class App extends GameApplication {
 
@@ -26,6 +29,9 @@ public class App extends GameApplication {
     private Circle player = new Circle(25);
     private int position = 0;
 
+    private int numPlayers;
+    private ArrayList<Player> players;
+
 
     @Override
     protected void initSettings(GameSettings settings) {
@@ -33,10 +39,31 @@ public class App extends GameApplication {
         settings.setWidth(BASE_WIDTH + UI_WIDTH);
         settings.setHeight(BASE_HEIGHT);
         settings.setVersion("1.0");
+        settings.setMainMenuEnabled(true);
     }
 
     @Override
     protected void initUI() {
+        VBox layout = new VBox();
+        
+        Spinner<Integer> playerCount = new Spinner<Integer>(2, 4, 2);
+        Button next = new Button("Next");
+
+        layout.getChildren().addAll(playerCount, next);
+        getGameScene().addUINode(layout);
+
+        next.setOnAction(e -> {
+            numPlayers = playerCount.getValue();
+            getGameScene().clearUINodes();
+            initPlayerConfig();
+        });
+    }
+
+    protected void initPlayerConfig() {
+        initBoard();
+    }
+
+    protected void initBoard() {
         Pane board = new Pane(); // the tile board
         HBox layout = new HBox(); // split the board from the buttons
         layout.setSpacing(20);
@@ -81,6 +108,7 @@ public class App extends GameApplication {
         timeline.play();
     }
 
+    @Override
     protected void initGame() {
         int count = 0;
         for (int i = 1; i <= NUM_TILES_HEIGHT; i++) {
@@ -108,7 +136,7 @@ public class App extends GameApplication {
 
         int newpos = position + n;
 
-        if (position + n > tiles.length) {
+        if (position + n >= tiles.length) {
             newpos = tiles.length - 1;
         }
 
