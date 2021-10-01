@@ -23,6 +23,7 @@ import javafx.util.Duration;
 import static com.almasb.fxgl.dsl.FXGL.*;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 public class App extends GameApplication {
 
@@ -132,6 +133,8 @@ public class App extends GameApplication {
         HBox layout = new HBox(); // split the board from the buttons
         layout.setSpacing(20);
 
+        Collections.shuffle(players);
+
         Timeline timeline = new Timeline();
 
         for (int i = 1; i < NUM_TILES_WIDTH; i++) {
@@ -163,6 +166,8 @@ public class App extends GameApplication {
         sideUI.setSpacing(20);
 
         VBox playerData = new VBox();
+        Label moveOrderLabel = new Label("--------MOVE ORDER--------");
+        playerData.getChildren().add(moveOrderLabel);
         for (int i = 0; i < numPlayers; i++) {
             Label label1 = new Label("---Player " + (i + 1) + "---");
             Label label2 = new Label("Name: " + players.get(i).getName());
