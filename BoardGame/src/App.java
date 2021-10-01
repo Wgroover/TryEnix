@@ -4,8 +4,14 @@ import com.almasb.fxgl.app.GameSettings;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.geometry.Insets;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
@@ -20,9 +26,9 @@ import java.util.ArrayList;
 
 public class App extends GameApplication {
 
-    private final int BASE_WIDTH = 500;
-    private final int BASE_HEIGHT = 500;
-    private final int UI_WIDTH = 200;
+    private final int BASE_WIDTH = 600;
+    private final int BASE_HEIGHT = 600;
+    private final int UI_WIDTH = 400;
     private final int NUM_TILES_WIDTH = 5;
     private final int NUM_TILES_HEIGHT = 5;
     private int[][] tiles = new int[NUM_TILES_HEIGHT * NUM_TILES_WIDTH][2];
@@ -35,21 +41,26 @@ public class App extends GameApplication {
 
     @Override
     protected void initSettings(GameSettings settings) {
-        settings.setTitle("App");
+        settings.setTitle("Board Game");
         settings.setWidth(BASE_WIDTH + UI_WIDTH);
         settings.setHeight(BASE_HEIGHT);
         settings.setVersion("1.0");
         settings.setMainMenuEnabled(true);
+
+        players = new ArrayList<>();
     }
 
     @Override
     protected void initUI() {
         VBox layout = new VBox();
+        layout.setPadding(new Insets(5, 5, 5, 5));
+        layout.setSpacing(10);
         
+        Label label = new Label("Choose the desired number of players:");
         Spinner<Integer> playerCount = new Spinner<Integer>(2, 4, 2);
         Button next = new Button("Next");
 
-        layout.getChildren().addAll(playerCount, next);
+        layout.getChildren().addAll(label, playerCount, next);
         getGameScene().addUINode(layout);
 
         next.setOnAction(e -> {
@@ -60,7 +71,61 @@ public class App extends GameApplication {
     }
 
     protected void initPlayerConfig() {
-        initBoard();
+        VBox layout = new VBox();
+        layout.setPadding(new Insets(5, 5, 5, 5));
+
+        class PlayerData {
+            public TextField name;
+            public ColorPicker color;
+        }
+
+        ArrayList<PlayerData> list = new ArrayList<>();
+
+        for (int i = 0; i < numPlayers; i++) {
+            Label label1 = new Label("---Player " + (i + 1) + "---");
+            Label label2 = new Label("Name:");
+            Label label3 = new Label("Color:");
+            Label label4 = new Label("");
+
+            TextField name = new TextField();
+            ColorPicker color = new ColorPicker();
+
+            layout.getChildren().addAll(label1, label2, name, label3, color, label4);
+            PlayerData data = new PlayerData();
+            data.name = name;
+            data.color = color;
+            list.add(data);
+        }
+        
+        Button next = new Button("Start Game");
+        next.setOnAction(e -> {
+            boolean passed = true;
+            for (int i = 0; i < numPlayers; i++) {
+                if (list.get(i).name.getText().trim().equals("")) {
+                    Alert error = new Alert(AlertType.ERROR);
+                    error.setTitle("Error");
+                    error.setHeaderText("Every player must have a valid name.");
+                    error.setContentText("Player " + (i + 1) + "'s name caused this error.");
+                    error.showAndWait();
+                    passed = false;
+                    break;
+                }
+            }
+
+            if (passed) {
+                for (int i = 0; i < numPlayers; i++) {
+                    Circle circle = new Circle(25);
+                    circle.setFill(list.get(i).color.getValue());
+                    players.add(new Player(list.get(i).name.getText(), circle));
+                }
+    
+                getGameScene().clearUINodes();
+                initBoard();
+            }
+        });
+
+        layout.getChildren().add(next);
+        getGameScene().addUINode(layout);
     }
 
     protected void initBoard() {
