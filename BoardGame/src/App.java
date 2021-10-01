@@ -38,7 +38,6 @@ public class App extends GameApplication {
     private int numPlayers;
     private ArrayList<Player> players;
 
-
     @Override
     protected void initSettings(GameSettings settings) {
         settings.setTitle("Board Game");
@@ -55,7 +54,7 @@ public class App extends GameApplication {
         VBox layout = new VBox();
         layout.setPadding(new Insets(5, 5, 5, 5));
         layout.setSpacing(10);
-        
+
         Label label = new Label("Choose the desired number of players:");
         Spinner<Integer> playerCount = new Spinner<Integer>(2, 4, 2);
         Button next = new Button("Next");
@@ -96,7 +95,7 @@ public class App extends GameApplication {
             data.color = color;
             list.add(data);
         }
-        
+
         Button next = new Button("Start Game");
         next.setOnAction(e -> {
             boolean passed = true;
@@ -118,7 +117,7 @@ public class App extends GameApplication {
                     circle.setFill(list.get(i).color.getValue());
                     players.add(new Player(list.get(i).name.getText(), circle));
                 }
-    
+
                 getGameScene().clearUINodes();
                 initBoard();
             }
@@ -159,11 +158,23 @@ public class App extends GameApplication {
         forwardOne.setOnAction(e -> move(1));
         Button forwardThree = new Button("Move forward three");
         forwardThree.setOnAction(e -> move(3));
-        
-        VBox buttons = new VBox(forwardOne, forwardThree);
-        buttons.setSpacing(20);
 
-        layout.getChildren().addAll(board, buttons);
+        VBox sideUI = new VBox(forwardOne, forwardThree);
+        sideUI.setSpacing(20);
+
+        VBox playerData = new VBox();
+        for (int i = 0; i < numPlayers; i++) {
+            Label label1 = new Label("---Player " + (i + 1) + "---");
+            Label label2 = new Label("Name: " + players.get(i).getName());
+            Label label3 = new Label("Money: $" + players.get(i).getMoney());
+            Label label4 = new Label("");
+
+            playerData.getChildren().addAll(label1, players.get(i).getInGameObject(), label2, label3, label4);
+        }
+
+        sideUI.getChildren().add(playerData);
+
+        layout.getChildren().addAll(board, sideUI);
 
         getGameScene().addUINode(layout);
         getGameScene().setBackgroundColor(Color.GREY);
