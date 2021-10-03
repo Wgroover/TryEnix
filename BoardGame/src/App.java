@@ -101,7 +101,7 @@ public class App extends GameApplication {
         next.setOnAction(e -> {
             boolean passed = true;
             for (int i = 0; i < numPlayers; i++) {
-                if (list.get(i).name.getText().trim().equals("")) {
+                if (!isNameValid(list.get(i).name.getText())) {
                     Alert error = new Alert(AlertType.ERROR);
                     error.setTitle("Error");
                     error.setHeaderText("Every player must have a valid name.");
@@ -128,12 +128,24 @@ public class App extends GameApplication {
         getGameScene().addUINode(layout);
     }
 
+    public boolean isNameValid(String name) {
+        if (name == null) {
+            return false;
+        }
+        
+        if (name.trim().equals("")) {
+            return false;
+        }
+
+        return true;
+    }
+
     protected void initBoard() {
         Pane board = new Pane(); // the tile board
         HBox layout = new HBox(); // split the board from the buttons
         layout.setSpacing(20);
 
-        Collections.shuffle(players);
+        changeTurnOrder(players);
 
         Timeline timeline = new Timeline();
 
@@ -187,6 +199,20 @@ public class App extends GameApplication {
         getGameScene().addUINode(player);
 
         timeline.play();
+    }
+
+    public void changeTurnOrder(ArrayList<Player> players) {
+        ArrayList<Player> original = new ArrayList<>(players);
+        Collections.shuffle(players);
+        while(true) {
+            for (int i = 0; i < original.size(); i++) {
+                if (original.get(i) != players.get(i)) {
+                    return;
+                }
+            }
+
+            Collections.shuffle(players);
+        }
     }
 
     @Override
