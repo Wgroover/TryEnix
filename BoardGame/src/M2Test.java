@@ -3,6 +3,8 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 
+import app.App;
+import app.Player;
 import org.junit.Test;
 
 import javafx.scene.paint.Color;

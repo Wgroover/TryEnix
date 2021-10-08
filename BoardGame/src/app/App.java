@@ -1,3 +1,5 @@
+package app;
+
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
 
@@ -18,12 +20,17 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import javafx.util.Duration;
+import tiles.GreenTile;
+import tiles.Tile;
+import util.Position;
 
 import static com.almasb.fxgl.dsl.FXGL.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class App extends GameApplication {
 
@@ -32,9 +39,9 @@ public class App extends GameApplication {
     private final int UI_WIDTH = 400;
     private final int NUM_TILES_WIDTH = 5;
     private final int NUM_TILES_HEIGHT = 5;
-    private int[][] tiles = new int[NUM_TILES_HEIGHT * NUM_TILES_WIDTH][2];
-    private Circle player = new Circle(25);
-    private int position = 0;
+    private final double TILE_WIDTH = (double) BASE_WIDTH / NUM_TILES_WIDTH;
+    private final double TILE_HEIGHT = (double) BASE_HEIGHT / NUM_TILES_HEIGHT;
+    private Tile[][] tiles = new Tile[NUM_TILES_HEIGHT][NUM_TILES_WIDTH];
 
     private int numPlayers;
     private ArrayList<Player> players;
@@ -149,30 +156,25 @@ public class App extends GameApplication {
 
         Timeline timeline = new Timeline();
 
-        for (int i = 1; i < NUM_TILES_WIDTH; i++) {
-            double startX = i * (BASE_WIDTH / NUM_TILES_WIDTH);
-            Line line = new Line(startX, 0, startX, 0);
+        for (int i = 0; i < tiles.length; i++) {
+            for (int j = 0; j < tiles[i].length; j++) {
+                tiles[i][j] = new GreenTile(i, j);
 
-            board.getChildren().add(line);
+                Rectangle r = new Rectangle(j * TILE_WIDTH, i * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
+                r.setFill(tiles[i][j].getColor());
+                r.setOpacity(0);
+                r.setStroke(Color.BLACK);
 
-            timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(0.5), 
-                new KeyValue(line.endYProperty(), BASE_HEIGHT)));
-        }
-
-        for (int i = 1; i < NUM_TILES_HEIGHT; i++) {
-            double startY = i * (BASE_HEIGHT / NUM_TILES_HEIGHT);
-            Line line = new Line(0, startY, 0, startY);
-
-            board.getChildren().add(line);
-
-            timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(0.5), 
-                new KeyValue(line.endXProperty(), BASE_WIDTH)));
+                board.getChildren().add(r);
+                timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(0.25 * (i + j) + 0.1),
+                        new KeyValue(r.opacityProperty(), 1.0)));
+            }
         }
 
         Button forwardOne = new Button("Move forward one");
-        forwardOne.setOnAction(e -> move(1));
+        forwardOne.setOnAction(e -> move(players.get(0), 1, Direction.RIGHT));
         Button forwardThree = new Button("Move forward three");
-        forwardThree.setOnAction(e -> move(3));
+        forwardThree.setOnAction(e -> move(players.get(0), 1, Direction.DOWN));
 
         VBox sideUI = new VBox(forwardOne, forwardThree);
         sideUI.setSpacing(20);
@@ -183,10 +185,15 @@ public class App extends GameApplication {
         for (int i = 0; i < numPlayers; i++) {
             Label label1 = new Label("---Player " + (i + 1) + "---");
             Label label2 = new Label("Name: " + players.get(i).getName());
-            Label label3 = new Label("Money: $" + players.get(i).getMoney());
+            Label label3 = new Label();
+            label3.textProperty().bind(players.get(i).getFormattedMoneyProperty());
             Label label4 = new Label("");
 
-            playerData.getChildren().addAll(label1, players.get(i).getInGameObject(), label2, label3, label4);
+            Circle playerCircle = players.get(i).getInGameObject();
+            Circle dispCircle = new Circle(playerCircle.getRadius());
+            dispCircle.setFill(playerCircle.getFill());
+
+            playerData.getChildren().addAll(label1, dispCircle, label2, label3, label4);
         }
 
         sideUI.getChildren().add(playerData);
@@ -196,7 +203,11 @@ public class App extends GameApplication {
         getGameScene().addUINode(layout);
         getGameScene().setBackgroundColor(Color.GREY);
 
-        getGameScene().addUINode(player);
+        for (Player p : players) {
+            getGameScene().addUINode(p.getInGameObject());
+        }
+
+        updateAllPlayerDisplayPositions();
 
         timeline.play();
     }
@@ -217,40 +228,41 @@ public class App extends GameApplication {
 
     @Override
     protected void initGame() {
-        int count = 0;
-        for (int i = 1; i <= NUM_TILES_HEIGHT; i++) {
-            int pos_Y = ((BASE_HEIGHT / NUM_TILES_HEIGHT) * i) - ((BASE_HEIGHT / NUM_TILES_HEIGHT) / 2);
-            for (int j = 1; j <= NUM_TILES_WIDTH; j++) {
-                int pos_X = ((BASE_WIDTH / NUM_TILES_WIDTH) * j) - ((BASE_WIDTH / NUM_TILES_WIDTH) / 2);
-                tiles[count][0] = pos_Y;
-                tiles[count][1] = pos_X;
-                count++;
-            }
-        }
-
-        player.setTranslateY(tiles[0][0]);
-        player.setTranslateX(tiles[0][1]);
     }
 
-    private void move(int n) {
+    private void move(Player player, int n, Direction direction) {
         if (n < 0) {
             return;
         }
 
-        if (position == tiles.length - 1) {
-            return;
+        Position p = player.getPosition();
+        if (direction == Direction.UP) {
+            p.setI((p.getI() + NUM_TILES_HEIGHT - n % NUM_TILES_HEIGHT) % NUM_TILES_HEIGHT);
+        } else if (direction == Direction.DOWN) {
+            p.setI((p.getI() + n) % NUM_TILES_HEIGHT);
+        } else if (direction == Direction.LEFT) {
+            p.setJ((p.getJ() + NUM_TILES_WIDTH - n % NUM_TILES_WIDTH) % NUM_TILES_WIDTH);
+        } else {
+            p.setJ((p.getJ() + n) % NUM_TILES_WIDTH);
         }
 
-        int newpos = position + n;
+        tiles[p.getI()][p.getJ()].onEnter(player);
 
-        if (position + n >= tiles.length) {
-            newpos = tiles.length - 1;
+        updatePlayerDisplayPosition(player);
+    }
+
+    private void updatePlayerDisplayPosition(Player player) {
+        player.getInGameObject().setTranslateX(player.getPosition().getJ() * TILE_WIDTH + TILE_WIDTH / 2);
+        player.getInGameObject().setTranslateY(player.getPosition().getI() * TILE_HEIGHT + TILE_HEIGHT / 2);
+    }
+    private void updateAllPlayerDisplayPositions() {
+        for (Player p : players) {
+            updatePlayerDisplayPosition(p);
         }
+    }
 
-        player.setTranslateY(tiles[newpos][0]);
-        player.setTranslateX(tiles[newpos][1]);
-
-        position = newpos;
+    private enum Direction {
+        LEFT, RIGHT, UP, DOWN
     }
 
     public static void main(String[] args) {
