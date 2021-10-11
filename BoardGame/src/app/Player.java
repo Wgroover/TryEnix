@@ -1,16 +1,15 @@
 package app;
 
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
+import javafx.beans.property.IntegerProperty;
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.scene.shape.Circle;
 import util.Position;
 
 public class Player {
     private String name;
-    private int money;
+    private IntegerProperty money;
     private Circle inGameObject;
     private Position pos;
-    private StringProperty formattedMoney;
 
     public Player(String name, Circle inGameObject) {
         this(name, 0, inGameObject);
@@ -18,10 +17,9 @@ public class Player {
 
     public Player(String name, int money, Circle inGameObject) {
         this.name = name;
-        this.money = money;
+        this.money = new SimpleIntegerProperty(money);
         this.inGameObject = inGameObject;
         this.pos = new Position();
-        this.formattedMoney = new SimpleStringProperty("Money: $" + money);
     }
     
     public String getName() {
@@ -29,15 +27,13 @@ public class Player {
     }
 
     public int getMoney() {
-        return money;
+        return money.get();
     }
     public void setMoney(int money) {
-        this.money = money;
-        formattedMoney.setValue("Money: $" + money);
+        this.money.set(money);
     }
     public void changeMoney(int delta) {
-        this.money += delta;
-        formattedMoney.setValue("Money: $" + money);
+        this.money.set(this.money.get() + delta);
     }
 
     public Circle getInGameObject() {
@@ -48,7 +44,7 @@ public class Player {
         return pos;
     }
 
-    public StringProperty getFormattedMoneyProperty() {
-        return formattedMoney;
+    public IntegerProperty getMoneyProperty() {
+        return money;
     }
 }
