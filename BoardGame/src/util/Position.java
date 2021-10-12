@@ -33,4 +33,18 @@ public class Position {
     public void setJ(int j) {
         this.j = j;
     }
+
+    @Override
+    public boolean equals(Object other) {
+        if (other == null || !(other instanceof Position)) {
+            return false;
+        }
+        Position p = (Position) other;
+        return this.i == p.i && this.j == p.j;
+    }
+
+    @Override
+    public String toString() {
+        return "(" + i + ", " + j + ")";
+    }
 }

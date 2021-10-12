@@ -38,24 +38,22 @@ import util.Position;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
 import java.util.function.Consumer;
 
 import static com.almasb.fxgl.dsl.FXGL.getGameScene;
+import static app.Board.Direction;
 
 public class App extends GameApplication {
 
     private final static int BASE_WIDTH = 600;
     private final static int BASE_HEIGHT = 600;
     private final static int UI_WIDTH = 400;
-    private final static int NUM_TILES_WIDTH = 8;
-    private final static int NUM_TILES_HEIGHT = 8;
-    private final static double TILE_WIDTH = (double) BASE_WIDTH / NUM_TILES_WIDTH;
-    private final static double TILE_HEIGHT = (double) BASE_HEIGHT / NUM_TILES_HEIGHT;
-    private Tile[][] tiles = new Tile[NUM_TILES_HEIGHT][NUM_TILES_WIDTH];
+    private final static double TILE_WIDTH = (double) BASE_WIDTH / Board.WIDTH;
+    private final static double TILE_HEIGHT = (double) BASE_HEIGHT / Board.HEIGHT;
 
-    private int numPlayers;
-    private ArrayList<Player> players;
+    private Board board;
 
     @Override
     protected void initSettings(GameSettings settings) {
@@ -64,8 +62,6 @@ public class App extends GameApplication {
         settings.setHeight(BASE_HEIGHT);
         settings.setVersion("1.0");
         settings.setMainMenuEnabled(true);
-
-        players = new ArrayList<>();
     }
 
     @Override
@@ -82,13 +78,12 @@ public class App extends GameApplication {
         getGameScene().addUINode(layout);
 
         next.setOnAction(e -> {
-            numPlayers = playerCount.getValue();
             getGameScene().clearUINodes();
-            initPlayerConfig();
+            initPlayerConfig(playerCount.getValue());
         });
     }
 
-    protected void initPlayerConfig() {
+    protected void initPlayerConfig(int numPlayers) {
         VBox layout = new VBox();
         layout.setPadding(new Insets(5, 5, 5, 5));
 
@@ -132,6 +127,7 @@ public class App extends GameApplication {
             }
 
             if (passed) {
+                List<Player> players = new ArrayList<>();
                 for (int i = 0; i < numPlayers; i++) {
                     Circle circle = new Circle(25);
                     circle.setStroke(Color.BLACK);
@@ -140,6 +136,8 @@ public class App extends GameApplication {
                 }
 
                 getGameScene().clearUINodes();
+                Collections.shuffle(players);
+                this.board = new Board(players);
                 initBoard();
             }
         });
@@ -160,41 +158,14 @@ public class App extends GameApplication {
         return true;
     }
 
-    private void initTiles() {
-        Random random = new Random();
-        int count = 0;
-
-        for (int i = 0; i < tiles.length; i++) {
-            for (int j = 0; j < tiles[i].length; j++) {
-                if (count < 4) {
-                    tiles[i][j] = new ChanceTile(i, j);
-                    count++;
-                    continue;
-                }
-                tiles[i][j] = Math.random() < 0.4 ? new RedTile(i, j) : new GreenTile(i, j);
-            }
-        }
-
-        for (int k = 0; k < 1000; k++) {
-            int i1 = random.nextInt(tiles.length), i2 = random.nextInt(tiles.length);
-            int j1 = random.nextInt(tiles[i1].length), j2 = random.nextInt(tiles[i2].length);
-
-            Tile t = tiles[i1][j1];
-            tiles[i1][j1] = tiles[i2][j2];
-            tiles[i2][j2] = t;
-        }
-    }
-
     protected void initBoard() {
         Pane board = new Pane(); // the tile board
         HBox layout = new HBox(); // split the board from the buttons
         layout.setSpacing(20);
 
-        changeTurnOrder(players);
-
         Timeline timeline = new Timeline();
 
-        initTiles();
+        Tile[][] tiles = this.board.getTiles();
 
         for (int i = 0; i < tiles.length; i++) {
             for (int j = 0; j < tiles[i].length; j++) {
@@ -230,7 +201,7 @@ public class App extends GameApplication {
                 dir.setText(d.name().substring(0, 1));
                 moveNum.setText("" + dist);
                 if (doMove) {
-                    move(players.get(0), dist, d);
+                    move(this.board.getCurrentPlayer(), dist, d);
                     move.setDisable(false);
                 }
             };
@@ -252,7 +223,9 @@ public class App extends GameApplication {
         VBox playerData = new VBox();
         Label moveOrderLabel = new Label("--------MOVE ORDER--------");
         playerData.getChildren().add(moveOrderLabel);
-        for (int i = 0; i < numPlayers; i++) {
+
+        List<Player> players = this.board.getPlayers();
+        for (int i = 0; i < players.size(); i++) {
             Label label1 = new Label("---Player " + (i + 1) + "---");
             Label label2 = new Label("Name: " + players.get(i).getName());
             Label label3 = new Label();
@@ -295,27 +268,8 @@ public class App extends GameApplication {
         timeline.play();
     }
 
-    public void changeTurnOrder(ArrayList<Player> players) {
-        Collections.shuffle(players);
-    }
-
     private void move(Player player, int n, Direction direction) {
-        if (n < 0) {
-            return;
-        }
-
-        Position p = player.getPosition();
-        if (direction == Direction.UP) {
-            p.setI((p.getI() + NUM_TILES_HEIGHT - n % NUM_TILES_HEIGHT) % NUM_TILES_HEIGHT);
-        } else if (direction == Direction.DOWN) {
-            p.setI((p.getI() + n) % NUM_TILES_HEIGHT);
-        } else if (direction == Direction.LEFT) {
-            p.setJ((p.getJ() + NUM_TILES_WIDTH - n % NUM_TILES_WIDTH) % NUM_TILES_WIDTH);
-        } else {
-            p.setJ((p.getJ() + n) % NUM_TILES_WIDTH);
-        }
-
-        tiles[p.getI()][p.getJ()].onEnter(player);
+        board.move(player, n, direction);
 
         updatePlayerDisplayPosition(player);
     }
@@ -325,13 +279,9 @@ public class App extends GameApplication {
         player.getInGameObject().setTranslateY(player.getPosition().getI() * TILE_HEIGHT + TILE_HEIGHT / 2);
     }
     private void updateAllPlayerDisplayPositions() {
-        for (Player p : players) {
+        for (Player p : board.getPlayers()) {
             updatePlayerDisplayPosition(p);
         }
-    }
-
-    private enum Direction {
-        LEFT, RIGHT, UP, DOWN
     }
 
     public static void main(String[] args) {
