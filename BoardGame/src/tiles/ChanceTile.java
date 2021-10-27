@@ -1,5 +1,6 @@
 package tiles;
 
+import app.Board;
 import app.Player;
 import javafx.scene.paint.Color;
 
@@ -10,7 +11,7 @@ public class ChanceTile extends Tile {
     }
 
     @Override
-    public void onEnter(Player player) {
+    public void onEnter(Player player, Board board) {
 
     }
 }

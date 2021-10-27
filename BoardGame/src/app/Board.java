@@ -9,6 +9,7 @@ import util.Position;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import java.util.function.Consumer;
 
 public class Board {
 
@@ -18,6 +19,8 @@ public class Board {
 
     private Tile[][] tiles;
     private List<Player> players;
+
+    private BoardUI ui;
 
     public Board(List<Player> players) {
         this.players = new ArrayList<>(players);
@@ -67,7 +70,15 @@ public class Board {
             p.setJ((p.getJ() + n) % WIDTH);
         }
 
-        tiles[p.getI()][p.getJ()].onEnter(player);
+        if (ui != null) {
+            ui.updateAllPlayerDisplayPositions();
+        }
+
+        tiles[p.getI()][p.getJ()].onEnter(player, this);
+    }
+
+    public void bindUI(BoardUI ui) {
+        this.ui = ui;
     }
 
     public Tile[][] getTiles() {

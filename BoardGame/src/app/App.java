@@ -47,11 +47,9 @@ import static app.Board.Direction;
 
 public class App extends GameApplication {
 
-    private final static int BASE_WIDTH = 600;
-    private final static int BASE_HEIGHT = 600;
+    public final static int BASE_WIDTH = 600;
+    public final static int BASE_HEIGHT = 600;
     private final static int UI_WIDTH = 400;
-    private final static double TILE_WIDTH = (double) BASE_WIDTH / Board.WIDTH;
-    private final static double TILE_HEIGHT = (double) BASE_HEIGHT / Board.HEIGHT;
 
     private Board board;
 
@@ -147,141 +145,15 @@ public class App extends GameApplication {
     }
 
     public boolean isNameValid(String name) {
-        if (name == null) {
-            return false;
-        }
-        
-        if (name.trim().equals("")) {
-            return false;
-        }
-
-        return true;
+        return name != null && !name.trim().equals("");
     }
 
     protected void initBoard() {
-        Pane board = new Pane(); // the tile board
-        HBox layout = new HBox(); // split the board from the buttons
-        layout.setSpacing(20);
-
-        Timeline timeline = new Timeline();
-
-        Tile[][] tiles = this.board.getTiles();
-
-        for (int i = 0; i < tiles.length; i++) {
-            for (int j = 0; j < tiles[i].length; j++) {
-                Rectangle r = new Rectangle(j * TILE_WIDTH, i * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
-                r.setFill(tiles[i][j].getColor());
-                r.setOpacity(0);
-                r.setStroke(Color.BLACK);
-
-                board.getChildren().add(r);
-                timeline.getKeyFrames().add(new KeyFrame(Duration.seconds(0.25 * (i + j) + 0.1),
-                        new KeyValue(r.opacityProperty(), 1.0)));
-            }
-        }
-
-        Label dir = new Label("R");
-        dir.setFont(new Font(24));
-        dir.setAlignment(Pos.CENTER);
-        dir.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(5))));
-        dir.setPrefSize(50, 50);
-
-        Label moveNum = new Label("1");
-        moveNum.setFont(new Font(24));
-        moveNum.setAlignment(Pos.CENTER);
-        moveNum.setBorder(new Border(new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(5))));
-        moveNum.setPrefSize(50, 50);
-
-        Button move = new Button("Roll");
-        move.setOnAction(e -> {
-            move.setDisable(true);
-            Consumer<Boolean> rollDie = doMove -> {
-                int dist = (int) (Math.random() * 6) + 1;
-                Direction d = Direction.values()[(int) (Math.random() * 4)];
-                dir.setText(d.name().substring(0, 1));
-                moveNum.setText("" + dist);
-                if (doMove) {
-                    move(this.board.getCurrentPlayer(), dist, d);
-                    move.setDisable(false);
-                }
-            };
-            Timeline t = new Timeline(new KeyFrame(Duration.seconds(0.1), f -> rollDie.accept(false)));
-
-            t.setOnFinished(f -> rollDie.accept(true));
-
-            t.setCycleCount(10);
-            t.playFromStart();
-        });
-
-        HBox movementGroup = new HBox(move, dir, moveNum);
-        movementGroup.setSpacing(20);
-
-        VBox sideUI = new VBox(movementGroup);
-        sideUI.setPadding(new Insets(20));
-        sideUI.setSpacing(20);
-
-        VBox playerData = new VBox();
-        Label moveOrderLabel = new Label("--------MOVE ORDER--------");
-        playerData.getChildren().add(moveOrderLabel);
-
-        List<Player> players = this.board.getPlayers();
-        for (int i = 0; i < players.size(); i++) {
-            Label label1 = new Label("---Player " + (i + 1) + "---");
-            Label label2 = new Label("Name: " + players.get(i).getName());
-            Label label3 = new Label();
-            StringProperty playerMoney = new SimpleStringProperty();
-            playerMoney.bindBidirectional(players.get(i).getMoneyProperty(), new StringConverter<>() {
-                @Override
-                public String toString(Number object) {
-                    return "Money: $" + object;
-                }
-
-                @Override
-                public Number fromString(String string) {
-                    throw new UnsupportedOperationException("Money string to int");
-                }
-            });
-            label3.textProperty().bind(playerMoney);
-            Label label4 = new Label("");
-
-            Circle playerCircle = players.get(i).getInGameObject();
-            Circle dispCircle = new Circle(playerCircle.getRadius());
-            dispCircle.setFill(playerCircle.getFill());
-            dispCircle.setStroke(playerCircle.getStroke());
-
-            playerData.getChildren().addAll(label1, dispCircle, label2, label3, label4);
-        }
-
-        sideUI.getChildren().add(playerData);
-
-        layout.getChildren().addAll(board, sideUI);
-
-        getGameScene().addUINode(layout);
+        BoardUI ui = new BoardUI(this, this.board);
+        getGameScene().addUINode(ui.getRoot());
         getGameScene().setBackgroundColor(Color.GREY);
 
-        for (Player p : players) {
-            getGameScene().addUINode(p.getInGameObject());
-        }
-
-        updateAllPlayerDisplayPositions();
-
-        timeline.play();
-    }
-
-    private void move(Player player, int n, Direction direction) {
-        board.move(player, n, direction);
-
-        updatePlayerDisplayPosition(player);
-    }
-
-    private void updatePlayerDisplayPosition(Player player) {
-        player.getInGameObject().setTranslateX(player.getPosition().getJ() * TILE_WIDTH + TILE_WIDTH / 2);
-        player.getInGameObject().setTranslateY(player.getPosition().getI() * TILE_HEIGHT + TILE_HEIGHT / 2);
-    }
-    private void updateAllPlayerDisplayPositions() {
-        for (Player p : board.getPlayers()) {
-            updatePlayerDisplayPosition(p);
-        }
+        ui.playOpeningAnimation();
     }
 
     public static void main(String[] args) {

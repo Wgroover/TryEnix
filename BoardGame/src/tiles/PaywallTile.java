@@ -4,14 +4,15 @@ import app.Board;
 import app.Player;
 import javafx.scene.paint.Color;
 
-public class RedTile extends Tile {
+public class PaywallTile extends Tile {
 
-    public RedTile(int i, int j) {
-        super(i, j, Color.RED);
+    public PaywallTile(int i, int j) {
+        super(i, j, Color.GRAY);
     }
 
     @Override
     public void onEnter(Player player, Board board) {
-        player.changeMoney(-10);
+
     }
+
 }
