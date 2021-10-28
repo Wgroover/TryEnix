@@ -17,6 +17,20 @@ public class PaywallTile extends Tile {
         this.paidFor = false;
     }
 
+    public static void action(boolean willPay, Player player, PaywallTile paywall, Board board) {
+        if (willPay) {
+            player.changeMoney(-paywall.getFee());
+            paywall.open();
+        } else {
+            if (player.getNumCookies() > 0) {
+                player.changeNumCookies(-1);
+                if (board.getUI() != null) {
+                    board.getUI().showMessage(String.format("%s lost a cookie :(", player.getName()));
+                }
+            }
+        }
+    }
+
     @Override
     public void onEnter(Player player, Board board) {
         if (!paidFor) {

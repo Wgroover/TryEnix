@@ -16,6 +16,15 @@ public class CookieTile extends Tile {
         cookieCost = START_COOKIE_COST;
     }
 
+    public static void action(boolean willPay, Player player, CookieTile cookieTile, Board board) {
+        if (willPay) {
+            cookieTile.payForCookie(player);
+            if (player.getNumCookies() >= Player.COOKIES_REQUIRED) {
+                board.win();
+            }
+        }
+    }
+
     public void payForCookie(Player player) {
         if (player.getMoney() < cookieCost) {
             return;

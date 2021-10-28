@@ -45,14 +45,7 @@ public class Board {
         }
     }
     public void promptBuyCookie(Player player, CookieTile cookieTile) {
-        Consumer<Boolean> callback = b -> {
-            if (b) {
-                cookieTile.payForCookie(player);
-                if (player.getNumCookies() >= Player.COOKIES_REQUIRED) {
-                    this.win();
-                }
-            }
-        };
+        Consumer<Boolean> callback = b -> CookieTile.action(b, player, cookieTile, this);
 
         if (ui == null) {
             callback.accept(player.getMoney() >= cookieTile.getCookieCost());
@@ -63,14 +56,7 @@ public class Board {
         }
     }
     public void promptPaywall(Player player, PaywallTile paywall) {
-        Consumer<Boolean> callback = b -> {
-            if (b) {
-                player.changeMoney(-paywall.getFee());
-                paywall.open();
-            } else {
-                System.out.println("no pay");
-            }
-        };
+        Consumer<Boolean> callback = b -> PaywallTile.action(b, player, paywall, this);
 
         if (ui == null) {
             callback.accept(player.getMoney() >= paywall.getFee());

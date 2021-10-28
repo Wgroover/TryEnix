@@ -56,6 +56,10 @@ public class BoardUI {
         this.ui = initBoard();
     }
 
+    public void showMessage(String message) {
+        Platform.runLater(() -> FXGL.getDialogService().showMessageBox(message));
+    }
+
     public void showWin() {
         Platform.runLater(() -> {
             FXGL.getGameScene().clearUINodes();
