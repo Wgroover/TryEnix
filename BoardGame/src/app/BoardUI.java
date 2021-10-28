@@ -1,13 +1,14 @@
 package app;
 
+import com.almasb.fxgl.dsl.FXGL;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -26,8 +27,11 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.util.Duration;
 import javafx.util.StringConverter;
+import tiles.CookieTile;
+import tiles.PaywallTile;
 import tiles.Tile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -48,7 +52,28 @@ public class BoardUI {
     public BoardUI(App app, Board board) {
         this.app = app;
         this.board = board;
+        this.board.bindUI(this);
         this.ui = initBoard();
+    }
+
+    public void showWin() {
+        Platform.runLater(() -> {
+            FXGL.getGameScene().clearUINodes();
+            FXGL.getGameScene().addUINode(new WinUI(board.getPlayers()).getRoot());
+        });
+    }
+
+    public void promptPaywall(Player player, PaywallTile paywall, Consumer<Boolean> callback) {
+        FXGL.getDialogService().showConfirmationBox(
+                String.format("Would you like to pay $%d to open the paywall? (Current balance: $%d)",
+                        paywall.getFee(), player.getMoney()),
+                callback);
+    }
+    public void promptBuyCookie(Player player, CookieTile cookieTile, Consumer<Boolean> callback) {
+        FXGL.getDialogService().showConfirmationBox(
+                String.format("Would you like to buy a cookie for $%d? (Current balance: $%d, cookies needed to win: %d)",
+                        cookieTile.getCookieCost(), player.getMoney(), Player.COOKIES_REQUIRED - player.getNumCookies()),
+                callback);
     }
 
     public void playOpeningAnimation() {
@@ -102,7 +127,7 @@ public class BoardUI {
         for (int i = 0; i < tiles.length; i++) {
             for (int j = 0; j < tiles[i].length; j++) {
                 Rectangle r = new Rectangle(j * TILE_WIDTH, i * TILE_HEIGHT, TILE_WIDTH, TILE_HEIGHT);
-                r.setFill(tiles[i][j].getColor());
+                r.fillProperty().bind(tiles[i][j].getColorProperty());
                 r.setOpacity(0);
                 r.setStroke(Color.BLACK);
 
@@ -171,20 +196,10 @@ public class BoardUI {
         for (int i = 0; i < players.size(); i++) {
             Label label1 = new Label("---Player " + (i + 1) + "---");
             Label label2 = new Label("Name: " + players.get(i).getName());
-            Label label3 = new Label();
-            StringProperty playerMoney = new SimpleStringProperty();
-            playerMoney.bindBidirectional(players.get(i).getMoneyProperty(), new StringConverter<>() {
-                @Override
-                public String toString(Number object) {
-                    return "Money: $" + object;
-                }
-
-                @Override
-                public Number fromString(String string) {
-                    throw new UnsupportedOperationException("Money string to int");
-                }
-            });
-            label3.textProperty().bind(playerMoney);
+            Label label3 = new Label(String.format("Money: $%d", players.get(i).getMoney()));
+            players.get(i).getMoneyProperty().addListener(((observable, oldValue, newValue) -> {
+                label3.setText(String.format("Money: $%d", newValue));
+            }));
             Label label4 = new Label("");
 
             Circle playerCircle = players.get(i).getInGameObject();
@@ -192,10 +207,29 @@ public class BoardUI {
             dispCircle.setFill(playerCircle.getFill());
             dispCircle.setStroke(playerCircle.getStroke());
 
-            playerData.getChildren().addAll(label1, dispCircle, label2, label3, label4);
+            Node cookieDisplay = createCookieTracker(players.get(i));
+
+            playerData.getChildren().addAll(label1, dispCircle, label2, label3, label4, cookieDisplay);
         }
 
         return playerData;
     }
+    private Node createCookieTracker(Player player) {
+        final HBox base = new HBox();
+        base.setSpacing(2);
+        final List<Circle> cookies = new ArrayList<>();
+        for (int i = 0; i < Player.COOKIES_REQUIRED; i++) {
+            Circle template = new Circle(5, Color.LIGHTGRAY);
+            template.setStroke(Color.BLACK);
+            cookies.add(template);
+        }
+        base.getChildren().addAll(cookies);
+        player.getCookiesProperty().addListener((observable, oldValue, newValue) -> {
+            for (int i = 0; i < Player.COOKIES_REQUIRED; i++) {
+                cookies.get(i).setFill(i < player.getNumCookies() ? Color.LEMONCHIFFON : Color.LIGHTGRAY);
+            }
+        });
 
+        return base;
+    }
 }

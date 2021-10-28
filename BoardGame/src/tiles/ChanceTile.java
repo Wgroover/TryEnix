@@ -6,8 +6,8 @@ import javafx.scene.paint.Color;
 
 public class ChanceTile extends Tile {
 
-    public ChanceTile(int i, int j) {
-        super(i, j, Color.BLUE);
+    public ChanceTile() {
+        super(Color.BLUE);
     }
 
     @Override

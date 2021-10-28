@@ -6,13 +6,16 @@ import javafx.scene.shape.Circle;
 import util.Position;
 
 public class Player {
+    public static final int COOKIES_REQUIRED = 5;
+
     private String name;
     private IntegerProperty money;
+    private IntegerProperty numCookies;
     private Circle inGameObject;
     private Position pos;
 
     public Player(String name, Circle inGameObject) {
-        this(name, 0, inGameObject);
+        this(name, 500, inGameObject);
     }
 
     public Player(String name, int money, Circle inGameObject) {
@@ -20,6 +23,7 @@ public class Player {
         this.money = new SimpleIntegerProperty(money);
         this.inGameObject = inGameObject;
         this.pos = new Position();
+        this.numCookies = new SimpleIntegerProperty(0);
     }
     
     public String getName() {
@@ -35,6 +39,22 @@ public class Player {
     public void changeMoney(int delta) {
         this.money.set(this.money.get() + delta);
     }
+    public IntegerProperty getMoneyProperty() {
+        return money;
+    }
+
+    public int getNumCookies() {
+        return numCookies.get();
+    }
+    public void setNumCookies(int numCookies) {
+        this.numCookies.set(numCookies);
+    }
+    public void changeNumCookies(int delta) {
+        this.numCookies.set(this.numCookies.get() + delta);
+    }
+    public IntegerProperty getCookiesProperty() {
+        return numCookies;
+    }
 
     public Circle getInGameObject() {
         return inGameObject;
@@ -44,7 +64,4 @@ public class Player {
         return pos;
     }
 
-    public IntegerProperty getMoneyProperty() {
-        return money;
-    }
 }

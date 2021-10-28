@@ -2,13 +2,7 @@ package app;
 
 import com.almasb.fxgl.app.GameApplication;
 import com.almasb.fxgl.app.GameSettings;
-import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
-import javafx.animation.Timeline;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.geometry.Insets;
-import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
@@ -16,40 +10,21 @@ import javafx.scene.control.ColorPicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
-import javafx.scene.layout.BorderStrokeStyle;
-import javafx.scene.layout.BorderWidths;
-import javafx.scene.layout.CornerRadii;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.text.Font;
-import javafx.util.Duration;
-import javafx.util.StringConverter;
-import tiles.ChanceTile;
-import tiles.GreenTile;
-import tiles.RedTile;
-import tiles.Tile;
-import util.Position;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
-import java.util.function.Consumer;
 
 import static com.almasb.fxgl.dsl.FXGL.getGameScene;
-import static app.Board.Direction;
 
 public class App extends GameApplication {
 
     public final static int BASE_WIDTH = 600;
     public final static int BASE_HEIGHT = 600;
-    private final static int UI_WIDTH = 400;
+    public final static int UI_WIDTH = 400;
 
     private Board board;
 

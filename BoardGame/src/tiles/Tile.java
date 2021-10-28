@@ -2,26 +2,26 @@ package tiles;
 
 import app.Board;
 import app.Player;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.paint.Color;
 import util.Position;
 
 public abstract class Tile {
 
-    private Position pos;
-    private Color color;
+    private ObjectProperty<Color> color;
 
-    public Tile(int i, int j, Color color) {
-        this.pos = new Position(i, j);
-        this.color = color;
+    public Tile(Color color) {
+        this.color = new SimpleObjectProperty<>(color);
     }
 
     public abstract void onEnter(Player player, Board board);
 
     public Color getColor() {
-        return color;
+        return color.getValue();
     }
-    public Position getPosition() {
-        return pos;
+    public ObjectProperty<Color> getColorProperty() {
+        return color;
     }
 
 }

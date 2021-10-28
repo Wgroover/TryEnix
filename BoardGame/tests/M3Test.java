@@ -60,7 +60,7 @@ public class M3Test {
         assertEquals(0, player.getMoney());
 
         Tile[][] tiles = board.getTiles();
-        tiles[0][2] = new GreenTile(0, 2);
+        tiles[0][2] = new GreenTile();
         board.move(player, 2, Direction.RIGHT);
 
         assertEquals(10, player.getMoney());
@@ -71,7 +71,7 @@ public class M3Test {
         assertEquals(0, player.getMoney());
 
         Tile[][] tiles = board.getTiles();
-        tiles[0][2] = new RedTile(0, 2);
+        tiles[0][2] = new RedTile();
         board.move(player, 2, Direction.RIGHT);
 
         assertEquals(-10, player.getMoney());
