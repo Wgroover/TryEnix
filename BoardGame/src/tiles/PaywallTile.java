@@ -43,6 +43,9 @@ public class PaywallTile extends Tile {
     public int getFee() {
         return fee;
     }
+    public boolean getPaidFor() {
+        return paidFor;
+    }
     public void open() {
         paidFor = true;
         super.getColorProperty().set(Color.GREEN.darker());
