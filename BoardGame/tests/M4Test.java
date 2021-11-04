@@ -53,7 +53,7 @@ public class M4Test {
     public void paywallClosed() {
         PaywallTile paywall2 = new PaywallTile();
         assertEquals(500, player2.getMoney());
-        paywall2.onEnter(player2, board);
+        PaywallTile.action(false, player1, paywall2, board);
         assertEquals(500, player2.getMoney());
     }
     
@@ -79,8 +79,8 @@ public class M4Test {
     @Test
     public void paywallOpen() {
         PaywallTile paywall = new PaywallTile();
-        int moneyBefore = player1.getMoney();
         PaywallTile.action(true, player1, paywall, board);
+        int moneyBefore = player1.getMoney();
         assertTrue(paywall.getPaidFor());
         paywall.onEnter(player1, board);
         assertEquals(moneyBefore + PaywallTile.POST_PAYMENT_MONEY_GAIN, player1.getMoney());
@@ -91,7 +91,7 @@ public class M4Test {
         PaywallTile paywall = new PaywallTile();
         player1.changeMoney(-player1.getMoney());
         assertEquals(0, player1.getMoney());
-        PaywallTile.action(true, player1, paywall, board);
+        paywall.onEnter(player1, board);
         assertFalse(paywall.getPaidFor());
     }
 
