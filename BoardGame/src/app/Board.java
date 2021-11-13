@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import tiles.ChanceTile;
 import tiles.CookieTile;
 import tiles.GreenTile;
+import tiles.MinigameTile;
 import tiles.PaywallTile;
 import tiles.RedTile;
 import tiles.Tile;
@@ -19,6 +20,7 @@ public class Board {
 
     public static final int WIDTH = 8;
     public static final int HEIGHT = 8;
+    public static final int NUM_MINIGAME_TILES = 10;
     public static final int NUM_CHANCE_TILES = 4;
     public static final int NUM_PAYWALL_TILES = 8;
     public static final int NUM_COOKIE_TILES = 2;
@@ -44,6 +46,7 @@ public class Board {
             System.out.println("Winner: " + winner.get().getName());
         }
     }
+
     public void promptBuyCookie(Player player, CookieTile cookieTile) {
         Consumer<Boolean> callback = b -> CookieTile.action(b, player, cookieTile, this);
 
@@ -55,6 +58,7 @@ public class Board {
             Platform.runLater(() -> ui.promptBuyCookie(player, cookieTile, callback));
         }
     }
+
     public void promptPaywall(Player player, PaywallTile paywall) {
         Consumer<Boolean> callback = b -> PaywallTile.action(b, player, paywall, this);
 
@@ -66,6 +70,7 @@ public class Board {
             Platform.runLater(() -> ui.promptPaywall(player, paywall, callback));
         }
     }
+
     public void move(Player player, int n, Direction direction) {
         if (n < 0) {
             return;
@@ -92,6 +97,7 @@ public class Board {
     public void bindUI(BoardUI ui) {
         this.ui = ui;
     }
+
     public BoardUI getUI() {
         return ui;
     }
@@ -99,9 +105,11 @@ public class Board {
     public Tile[][] getTiles() {
         return tiles;
     }
+
     public List<Player> getPlayers() {
         return players;
     }
+    
     public Player getCurrentPlayer() {
         return players.get(0);
     }
@@ -126,7 +134,11 @@ public class Board {
                     tiles[i][j] = new CookieTile();
                     count++;
                     continue;
-                }
+                } else if (count < NUM_CHANCE_TILES + NUM_PAYWALL_TILES + NUM_COOKIE_TILES + NUM_MINIGAME_TILES) {
+                    tiles[i][j] = new MinigameTile();
+                    count++;
+                    continue;
+                } 
                 tiles[i][j] = Math.random() < 0.4 ? new RedTile() : new GreenTile();
             }
         }
