@@ -67,8 +67,11 @@ public class RockPaperScissors extends Minigame {
 
         playerUI.getChildren().addAll(player1, player2);
 
+        Pane goPane = new VBox();
+        goPane.setPadding(new Insets(20, 20, 20, 20));
         Button go = new Button("GO!");
-        go.setPadding(new Insets(20, 20, 20, 20));
+
+        goPane.getChildren().add(go);
 
         go.setOnAction(e -> {
             if (playerData.size() != 2) {
@@ -94,7 +97,7 @@ public class RockPaperScissors extends Minigame {
             }
         });
 
-        main.getChildren().addAll(title, playerUI, go);
+        main.getChildren().addAll(title, playerUI, goPane);
     }
 
     private Pane createPlayerUI(Player player) {
