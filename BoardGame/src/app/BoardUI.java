@@ -207,7 +207,7 @@ public class BoardUI {
             Label label4 = new Label("");
 
             Circle playerCircle = players.get(i).getInGameObject();
-            Circle dispCircle = new Circle(playerCircle.getRadius());
+            Circle dispCircle = new Circle(playerCircle.getRadius() - 7);
             dispCircle.setFill(playerCircle.getFill());
             dispCircle.setStroke(playerCircle.getStroke());
 
