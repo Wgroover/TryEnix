@@ -1,6 +1,7 @@
 package minigames;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,9 @@ import javafx.scene.text.Font;
 import javafx.util.Duration;
 
 public class Reaction extends Minigame {
+    public static final int WINNINGS = 100;
+    public static final int LOSINGS = 50;
+
     Pane main;
     List<Node> previousState;
     Map<Player, Color> playerData = new HashMap<>();
@@ -34,6 +38,11 @@ public class Reaction extends Minigame {
         super(players);
         previousState = new ArrayList<>();
         initReaction();
+    }
+
+    //default ctor for testing
+    public Reaction(Player... players) {
+        super(Arrays.asList(players));
     }
 
     @Override
@@ -86,20 +95,8 @@ public class Reaction extends Minigame {
                 FXGL.getDialogService().showMessageBox("All players must attempt the game!");
             } else {
                 String message = "";
-                int winnings = 100;
                 for (Player p : getPlayers()) {
-                    if (playerData.get(p).equals(Color.GREEN)) {
-                        p.changeMoney(winnings);
-                        message += p.getName() + " won $" + winnings + "!\n";
-                    } else {
-                        int losings = 50;
-                        if (p.getMoney() < losings) {
-                            losings = p.getMoney();
-                        }
-
-                        p.changeMoney(-losings);
-                        message += p.getName() + " lost $" + losings + "...\n";
-                    }
+                    message += dealMoney(p);
                 }
 
                 FXGL.getDialogService().showMessageBox(message);
@@ -108,6 +105,18 @@ public class Reaction extends Minigame {
         });
 
         main.getChildren().addAll(title, subtitle, playerUI, contPane);
+    }
+
+    private String dealMoney(Player p) {
+        if (playerData.get(p).equals(Color.GREEN)) {
+            p.changeMoney(WINNINGS);
+            return p.getName() + " won $" + WINNINGS + "!\n";
+        } else {
+            int losings = Math.min(LOSINGS, p.getMoney());
+
+            p.changeMoney(-losings);
+            return p.getName() + " lost $" + losings + "...\n";
+        }
     }
 
     private Pane createPlayerUI(Player player) {

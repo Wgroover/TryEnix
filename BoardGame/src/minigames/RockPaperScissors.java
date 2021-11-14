@@ -1,6 +1,8 @@
 package minigames;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +31,11 @@ public class RockPaperScissors extends Minigame {
         super(players);
         previousState = new ArrayList<>();
         initRPS();
+    }
+
+    //default ctor for testing
+    public RockPaperScissors(Player... players) {
+        super(Arrays.asList(players));
     }
 
     @Override
