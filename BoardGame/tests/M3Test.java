@@ -30,28 +30,28 @@ public class M3Test {
     @Test
     public void checkMoveUp() {
         assertEquals(new Position(0, 0), player.getPosition());
-        board.move(player, 4, Direction.UP);
+        board.moveNextPlayer(4, Direction.UP);
         assertEquals(new Position(4, 0), player.getPosition());
     }
     
     @Test
     public void checkMoveDown() {
         assertEquals(new Position(0, 0), player.getPosition());
-        board.move(player, 9, Direction.DOWN);
+        board.moveNextPlayer(9, Direction.DOWN);
         assertEquals(new Position(1, 0), player.getPosition());
     }
     
     @Test
     public void checkMoveLeft() {
         assertEquals(new Position(0, 0), player.getPosition());
-        board.move(player, 4, Direction.LEFT);
+        board.moveNextPlayer(4, Direction.LEFT);
         assertEquals(new Position(0, 4), player.getPosition());
     }
     
     @Test
     public void checkMoveRight() {
         assertEquals(new Position(0, 0), player.getPosition());
-        board.move(player, 9, Direction.RIGHT);
+        board.moveNextPlayer(9, Direction.RIGHT);
         assertEquals(new Position(0, 1), player.getPosition());
     }
     
@@ -61,7 +61,7 @@ public class M3Test {
 
         Tile[][] tiles = board.getTiles();
         tiles[0][2] = new GreenTile();
-        board.move(player, 2, Direction.RIGHT);
+        board.moveNextPlayer(2, Direction.RIGHT);
 
         assertEquals(10, player.getMoney());
     }
@@ -72,7 +72,7 @@ public class M3Test {
 
         Tile[][] tiles = board.getTiles();
         tiles[0][2] = new RedTile();
-        board.move(player, 2, Direction.RIGHT);
+        board.moveNextPlayer(2, Direction.RIGHT);
 
         assertEquals(-10, player.getMoney());
     }

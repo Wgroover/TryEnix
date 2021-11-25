@@ -174,7 +174,7 @@ public class BoardUI {
                 dir.setText(d.name().substring(0, 1));
                 moveNum.setText("" + dist);
                 if (doMove) {
-                    this.board.move(this.board.getCurrentPlayer(), dist, d);
+                    this.board.moveNextPlayer(dist, d);
                     move.setDisable(false);
                 }
             };

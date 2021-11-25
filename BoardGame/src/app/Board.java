@@ -27,6 +27,7 @@ public class Board {
 
     private Tile[][] tiles;
     private List<Player> players;
+    private int turn;
 
     private BoardUI ui;
 
@@ -71,7 +72,11 @@ public class Board {
         }
     }
 
-    public void move(Player player, int n, Direction direction) {
+    public void moveNextPlayer(int n, Direction direction) {
+        move(getCurrentPlayer(), n, direction);
+        turn++;
+    }
+    private void move(Player player, int n, Direction direction) {
         if (n < 0) {
             return;
         }
@@ -111,7 +116,7 @@ public class Board {
     }
     
     public Player getCurrentPlayer() {
-        return players.get(0);
+        return players.get(turn % players.size());
     }
 
     private void initTiles() {
