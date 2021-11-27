@@ -213,7 +213,7 @@ public class BoardUI {
 
             Node cookieDisplay = createCookieTracker(players.get(i));
 
-            playerData.getChildren().addAll(label1, dispCircle, label2, label3, label4, cookieDisplay);
+            playerData.getChildren().addAll(label1, dispCircle, label2, label3, cookieDisplay, label4);
         }
 
         return playerData;

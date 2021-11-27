@@ -98,6 +98,7 @@ public class RockPaperScissors extends Minigame {
 
                     FXGL.getDialogService().showMessageBox(winner.getName() + " defeated " + loser.getName() + "!\n"
                         + winner.getName() + " stole $" + delta + " from " + loser.getName() + ".");
+                    winner.getStats().incrementMinigamesWon(1);
                 }
 
                 endGame();

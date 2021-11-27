@@ -14,6 +14,8 @@ public class Player {
     private Circle inGameObject;
     private Position pos;
 
+    private PlayerStats stats;
+
     public Player(String name, Circle inGameObject) {
         this(name, 500, inGameObject);
     }
@@ -24,6 +26,7 @@ public class Player {
         this.inGameObject = inGameObject;
         this.pos = new Position();
         this.numCookies = new SimpleIntegerProperty(0);
+        this.stats = new PlayerStats(this);
     }
     
     public String getName() {
@@ -51,6 +54,9 @@ public class Player {
     }
     public void changeNumCookies(int delta) {
         this.numCookies.set(this.numCookies.get() + delta);
+        if (delta > 0) {
+            stats.incrementCookiesObtained(delta);
+        }
     }
     public IntegerProperty getCookiesProperty() {
         return numCookies;
@@ -64,4 +70,7 @@ public class Player {
         return pos;
     }
 
+    public PlayerStats getStats() {
+        return stats;
+    }
 }

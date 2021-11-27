@@ -97,6 +97,9 @@ public class Reaction extends Minigame {
                 String message = "";
                 for (Player p : getPlayers()) {
                     message += dealMoney(p);
+                    if (playerData.get(p).equals(Color.GREEN)) {
+                        p.getStats().incrementMinigamesWon(1);
+                    }
                 }
 
                 FXGL.getDialogService().showMessageBox(message);

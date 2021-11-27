@@ -96,6 +96,7 @@ public class Board {
             ui.updateAllPlayerDisplayPositions();
         }
 
+        player.getStats().incrementTilesTraversed(n);
         tiles[p.getI()][p.getJ()].onEnter(player, this);
     }
 

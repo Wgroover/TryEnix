@@ -6,7 +6,7 @@ import javafx.scene.paint.Color;
 
 public class RedTile extends Tile {
 
-    public static final int MONEY_LOSS = -10;
+    public static final int MONEY_LOSS = 10;
 
     public RedTile() {
         super(Color.RED);
@@ -14,6 +14,7 @@ public class RedTile extends Tile {
 
     @Override
     public void onEnter(Player player, Board board) {
-        player.changeMoney(MONEY_LOSS);
+        int loss = Math.min(player.getMoney(), MONEY_LOSS);
+        player.changeMoney(-loss);
     }
 }
