@@ -76,7 +76,7 @@ public class Board {
         move(getCurrentPlayer(), n, direction);
         turn++;
     }
-    private void move(Player player, int n, Direction direction) {
+    public void move(Player player, int n, Direction direction) {
         if (n < 0) {
             return;
         }
